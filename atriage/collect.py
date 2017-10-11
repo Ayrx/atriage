@@ -34,7 +34,7 @@ class Results(object):
 
     def get_result_set(self, index):
         invalid_err = IndexError("Index {} is invalid. Use atriage info to "
-                        "view available indexes.".format(index))
+                                 "view available indexes.".format(index))
 
         empty_err = IndexError("Database is empty.")
 
@@ -50,7 +50,6 @@ class Results(object):
                 raise empty_err
             else:
                 raise invalid_err
-
 
     def parse_directory(self, directory):
         new = self._read_directory(directory)

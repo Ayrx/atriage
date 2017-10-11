@@ -32,9 +32,9 @@ def info(db):
         num_crashes = len(value)
         total_crashes += num_crashes
         if index == 0:
-            out.append( (index, "{}".format(num_crashes)) )
+            out.append((index, "{}".format(num_crashes)))
         else:
-            out.append( (index, "+{}".format(num_crashes)) )
+            out.append((index, "+{}".format(num_crashes)))
 
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
     click.echo()
