@@ -92,6 +92,27 @@ class Results(object):
             pickle.dump(self._results, f, pickle.HIGHEST_PROTOCOL)
 
 
+def get_crash_statistics(results):
+    """ Get crash statistics in a printable format.
+
+    This function returns a tuple. The first value in the tuple is a formatted
+    list of strings that is shows the new crashes added every time atriage is
+    ran. The second value in the tuple is the total number of crashes.
+    """
+    out = []
+    total_crashes = 0
+
+    for index, value in enumerate(results.raw_crashes):
+        num_crashes = len(value)
+        total_crashes += num_crashes
+        if index == 0:
+            out.append((index, "{}".format(num_crashes)))
+        else:
+            out.append((index, "+{}".format(num_crashes)))
+
+    return out, total_crashes
+
+
 def copy_crashes(crashes, out):
     try:
         os.makedirs(out)

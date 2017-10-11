@@ -1,4 +1,4 @@
-from atriage.collect import Results, copy_crashes
+from atriage.collect import Results, copy_crashes, get_crash_statistics
 
 import click
 
@@ -24,17 +24,8 @@ def triage(dir):
 @cli.command(help="Print information about the provided database file.")
 @click.argument("db", type=click.Path(exists=True))
 def info(db):
-    out = []
-    total_crashes = 0
-
     r = Results(db)
-    for index, value in enumerate(r.raw_crashes):
-        num_crashes = len(value)
-        total_crashes += num_crashes
-        if index == 0:
-            out.append((index, "{}".format(num_crashes)))
-        else:
-            out.append((index, "+{}".format(num_crashes)))
+    out, total_crashes = get_crash_statistics(r)
 
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
     click.echo()
