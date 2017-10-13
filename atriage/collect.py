@@ -87,9 +87,12 @@ class Results(object):
 
         return crashes
 
-    def write(self):
-        with open(self._db_file_name, "wb") as f:
-            pickle.dump(self._results, f, pickle.HIGHEST_PROTOCOL)
+
+def write_results(results, outfile):
+    """ Write results to file.
+    """
+    with open(outfile, "wb") as f:
+        pickle.dump(results._results, f, pickle.HIGHEST_PROTOCOL)
 
 
 def get_crash_statistics(results):

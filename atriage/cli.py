@@ -1,4 +1,6 @@
-from atriage.collect import Results, copy_crashes, get_crash_statistics
+from atriage.collect import (
+    Results, copy_crashes, get_crash_statistics, write_results
+)
 
 import click
 
@@ -18,7 +20,7 @@ def cli():
 def triage(dir):
     r = Results(DB_FILE_NAME)
     r.parse_directory(dir)
-    r.write()
+    write_results(r, DB_FILE_NAME)
 
 
 @cli.command(help="Print information about the provided database file.")
