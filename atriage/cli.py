@@ -18,7 +18,7 @@ def cli():
 @cli.command(help="Triage crash files from afl output directory.")
 @click.argument("dir", type=click.Path(exists=True))
 def triage(dir):
-    r = Results(DB_FILE_NAME)
+    r = Results.from_db(DB_FILE_NAME)
     r.parse_directory(dir)
     write_results(r, DB_FILE_NAME)
 
@@ -26,7 +26,7 @@ def triage(dir):
 @cli.command(help="Print information about the provided database file.")
 @click.argument("db", type=click.Path(exists=True))
 def info(db):
-    r = Results(db)
+    r = Results.from_db(db)
     out, total_crashes = get_crash_statistics(r)
 
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
@@ -42,7 +42,7 @@ def info(db):
               help="List files at index. "
               "Use atriage info to get a list of indexes.")
 def list(db, all, index):
-    r = Results(db)
+    r = Results.from_db(db)
 
     if all:
         crashes = r.all_crashes
@@ -66,7 +66,7 @@ def list(db, all, index):
               help="Gather files at index. "
               "Use atriage info to get a list of indexes.")
 def gather(db, dir, all, index):
-    r = Results(db)
+    r = Results.from_db(db)
 
     if all:
         crashes = r.all_crashes

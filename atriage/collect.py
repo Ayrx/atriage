@@ -10,15 +10,8 @@ import os
 
 
 class Results(object):
-    def __init__(self, db_file_name):
-        self._db_file_name = db_file_name
-
-        p = Path(self._db_file_name)
-        if p.exists():
-            with p.open("rb") as f:
-                self._results = pickle.load(f)
-        else:
-            self._results = []
+    def __init__(self, results):
+        self._results = results
 
     @property
     def all_crashes(self):
@@ -86,6 +79,17 @@ class Results(object):
                 crashes.add(crash)
 
         return crashes
+
+    @classmethod
+    def from_db(cls, db_file_name):
+        p = Path(db_file_name)
+        if p.exists():
+            with p.open("rb") as f:
+                results = pickle.load(f)
+        else:
+            results = []
+
+        return cls(results)
 
 
 def write_results(results, outfile):
