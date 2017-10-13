@@ -96,7 +96,7 @@ def write_results(results, outfile):
     """ Write results to file.
     """
     with open(outfile, "wb") as f:
-        pickle.dump(results._results, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(results.raw_crashes, f, pickle.HIGHEST_PROTOCOL)
 
 
 def get_crash_statistics(results):
