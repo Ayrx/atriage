@@ -20,3 +20,24 @@ def test_all_crashes_property():
     ])
 
     assert r.all_crashes == set(["test_case_1", "test_case_2", "test_case_3"])
+
+
+def test_new_crashes_property():
+    r = Results([
+        set(["test_case_1", "test_case_2"]),
+        set(["test_case_3"])
+    ])
+
+    assert r.new_crashes == set(["test_case_3"])
+
+
+def test_raw_crashes_property():
+    r = Results([
+        set(["test_case_1", "test_case_2"]),
+        set(["test_case_3"])
+    ])
+
+    assert r.raw_crashes == [
+        set(["test_case_1", "test_case_2"]),
+        set(["test_case_3"])
+    ]
