@@ -26,6 +26,10 @@ class Results(object):
         return self._results
 
     def get_result_set(self, index):
+        """ Get crashes by index.
+
+        Passing -1 as the index returns the latest set of crashes.
+        """
         invalid_err = IndexError("Index {} is invalid. Use atriage info to "
                                  "view available indexes.".format(index))
 
