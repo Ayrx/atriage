@@ -12,6 +12,7 @@ import os
 class Results(object):
     def __init__(self, results):
         self._results = results
+        self._afl_command = None
 
     @property
     def all_crashes(self):
@@ -49,6 +50,11 @@ class Results(object):
                 raise invalid_err
 
     def parse_directory(self, directory):
+        click.echo("Reading {}...".format(directory))
+
+        self._parse_afl_command(directory)
+        click.echo("afl-fuzz command: {}".format(self._afl_command))
+
         new = self._read_directory(directory)
         old = self.all_crashes
 
@@ -57,9 +63,25 @@ class Results(object):
             click.echo("Adding {} crashes.".format(len(diff)))
             self._results.append(diff)
 
+    def _parse_afl_command(self, directory):
+        p = Path(directory)
+        for fuzzer_dir in p.iterdir():
+            stats_file = fuzzer_dir / "fuzzer_stats"
+            try:
+                with stats_file.open() as f:
+                    data = f.readlines()
+            except FileNotFoundError:
+                continue
+            break
+
+        for line in data:
+            if line.startswith("command_line"):
+                command = line.split(":")[1].rstrip().lstrip()
+
+        self._afl_command = command.split("--")[1].rstrip().lstrip()
+
     def _read_directory(self, directory):
         crashes = set()
-        click.echo("Reading {}...".format(directory))
 
         p = Path(directory)
         for fuzzer_dir in p.iterdir():
