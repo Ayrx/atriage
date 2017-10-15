@@ -114,18 +114,16 @@ class Results(object):
         p = Path(db_file_name)
         if p.exists():
             with p.open("rb") as f:
-                results = pickle.load(f)
+                return pickle.load(f)
         else:
-            results = []
-
-        return cls(results)
+            return cls([])
 
 
 def write_results(results, outfile):
     """ Write results to file.
     """
     with open(outfile, "wb") as f:
-        pickle.dump(results.raw_crashes, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
 
 
 def get_crash_statistics(results):
