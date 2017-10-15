@@ -1,0 +1,27 @@
+start_time        : 1506786094
+last_update       : 1506949780
+fuzzer_pid        : 24931
+cycles_done       : 2
+execs_done        : 34460890
+execs_per_sec     : 131.62
+paths_total       : 1739
+paths_favored     : 159
+paths_found       : 336
+paths_imported    : 1400
+max_depth         : 4
+cur_path          : 252
+pending_favs      : 0
+pending_total     : 1436
+variable_paths    : 339
+stability         : 98.70%
+bitmap_cvg        : 6.32%
+unique_crashes    : 18
+unique_hangs      : 5
+last_path         : 1506948546
+last_crash        : 1506939803
+last_hang         : 1506837792
+execs_since_crash : 1499828
+exec_timeout      : 20
+afl_banner        : pkkez-M0
+afl_version       : 2.51b
+command_line      : afl-fuzz -m none -i corpus/ -o findings_dir/ -M pkkez-M0 -- ./harness @@

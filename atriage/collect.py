@@ -69,16 +69,19 @@ class Results(object):
             stats_file = fuzzer_dir / "fuzzer_stats"
             try:
                 with stats_file.open() as f:
-                    data = f.readlines()
+                    self._afl_command = self._parse_fuzzer_stats(f)
+                return
             except FileNotFoundError:
                 continue
-            break
 
-        for line in data:
+    def _parse_fuzzer_stats(self, stats_file):
+        """ Get the command used in afl-fuzz from the fuzzer_stats file.
+        """
+        for line in stats_file:
             if line.startswith("command_line"):
                 command = line.split(":")[1].rstrip().lstrip()
-
-        self._afl_command = command.split("--")[1].rstrip().lstrip()
+                command = command.split("--")[1].rstrip().lstrip()
+        return command
 
     def _read_directory(self, directory):
         crashes = set()
