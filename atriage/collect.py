@@ -12,7 +12,7 @@ import os
 class Results(object):
     def __init__(self, results):
         self._results = results
-        self._afl_command = None
+        self.afl_command = None
 
     @property
     def all_crashes(self):
@@ -53,7 +53,7 @@ class Results(object):
         click.echo("Reading {}...".format(directory))
 
         self._parse_afl_command(directory)
-        click.echo("afl-fuzz command: {}".format(self._afl_command))
+        click.echo("afl-fuzz command: {}".format(self.afl_command))
 
         new = self._read_directory(directory)
         old = self.all_crashes
@@ -69,7 +69,7 @@ class Results(object):
             stats_file = fuzzer_dir / "fuzzer_stats"
             try:
                 with stats_file.open() as f:
-                    self._afl_command = self._parse_fuzzer_stats(f)
+                    self.afl_command = self._parse_fuzzer_stats(f)
                 return
             except FileNotFoundError:
                 continue
