@@ -29,6 +29,8 @@ def info(db):
     r = Results.from_db(db)
     out, total_crashes = get_crash_statistics(r)
 
+    click.echo("Command: {}".format(r.afl_command))
+    click.echo()
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
     click.echo()
     click.echo("Total crashes: {}".format(total_crashes))
