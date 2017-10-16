@@ -79,8 +79,8 @@ class Results(object):
         """
         for line in stats_file:
             if line.startswith("command_line"):
-                command = line.split(":")[1].rstrip().lstrip()
-                command = command.split("--")[1].rstrip().lstrip()
+                command = line.split(":", maxsplit=1)[1].rstrip().lstrip()
+                command = command.split("--", maxsplit=1)[1].rstrip().lstrip()
         return command
 
     def _read_directory(self, directory):
