@@ -22,7 +22,7 @@ def feed_crashes(command, crashes, timeout):
             proc = subprocess.run(command, timeout=timeout,
                                   stderr=subprocess.PIPE,
                                   stdout=subprocess.DEVNULL)
-            err_msg = proc.stderr.decode("utf-8")
+            err_msg = proc.stderr.decode("utf-8", "backslashreplace")
         except subprocess.TimeoutExpired:
             err_msg = "Crash case timed out.\n"
 
