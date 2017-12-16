@@ -100,7 +100,9 @@ def gather(db, dir, all, index):
 @click.option("--location", type=click.Path(exists=True),
               envvar="ATRIAGE_EXPLOITABLE",
               help="Location of the exploitable.py script")
-def exploitable(db, out, all, index, timeout, location):
+@click.option("--abort-on-error", "abort", default=False, is_flag=True,
+              help="Set ASAN_OPTIONS=abort_on_error=1")
+def exploitable(db, out, all, index, timeout, location, abort):
     """ Capture GDB exploitable output of latest triaged crash files.
 
     This command reuses the parameters passed to your fuzzed app in your
@@ -120,7 +122,7 @@ def exploitable(db, out, all, index, timeout, location):
             return
 
     try:
-        ret = ex.feed_crashes(r.command, crashes, timeout, location)
+        ret = ex.feed_crashes(r.command, crashes, timeout, location, abort)
     except IndexError as e:
         click.echo(str(e))
         return
