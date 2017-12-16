@@ -4,8 +4,6 @@ from atriage.db import (
 
 from atriage.collectors import afl
 
-from atriage import asan
-
 from atriage import exploitable as ex
 
 import click
@@ -87,47 +85,6 @@ def gather(db, dir, all, index):
             return
 
     copy_crashes(crashes, dir)
-
-
-@cli.command()
-@click.argument("db", type=click.Path(exists=True))
-@click.argument("out", type=click.Path())
-@click.option("--all", is_flag=True, default=False,
-              help="Capture ASAN output of all triaged crash files.")
-@click.option("--index", type=int, default=-1,
-              help="Capture ASAN output of files at index. "
-              "Use atriage info to get a list of indexes.")
-@click.option("--timeout", type=int, default=30,
-              help="Duration to spend on a single crash case.")
-def asan_output(db, out, all, index, timeout):
-    """ Capture ASAN output of latest triaged crash files.
-
-    This command reuses the parameters passed to your fuzzed app in your
-    afl-fuzz run and expects the standard "@@" to denote the place where
-    the crash file in inserted into your parameters. The command will fail if
-    it does not find that.
-    """
-    r = AtriageDB.from_db(db)
-
-    if all:
-        crashes = r.all_crashes
-    else:
-        try:
-            crashes = r.get_result_set(index)
-        except IndexError as e:
-            click.echo(str(e))
-            return
-
-    try:
-        ret = asan.feed_crashes(r.command, crashes, timeout)
-    except IndexError as e:
-        click.echo(str(e))
-        return
-
-    with open(out, "w") as f:
-        for i in ret:
-            f.write("{}\n".format(i[0]))
-            f.write("{}\n".format(i[1]))
 
 
 @cli.command()
