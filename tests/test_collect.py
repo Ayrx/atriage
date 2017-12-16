@@ -1,11 +1,9 @@
-from atriage.collect import Results, get_crash_statistics
+from atriage.db import AtriageDB, get_crash_statistics
 
 import pytest
 
-import os.path
 
-
-r = Results([
+r = AtriageDB([
     set(["test_case_1", "test_case_2"]),
     set(["test_case_3"])
 ])
@@ -45,7 +43,7 @@ def test_get_result_set_invalid():
 
 
 def test_get_result_set_empty():
-    r_empty = Results([])
+    r_empty = AtriageDB([])
     with pytest.raises(IndexError):
         r_empty.get_result_set(-1)
 
@@ -57,11 +55,3 @@ def test_get_result_set_latest():
 def test_get_result_set():
     r.get_result_set(0) == set(["test_case_1", "test_case_2"])
     r.get_result_set(1) == set(["test_case_3"])
-
-
-def test_parse_fuzzer_stats():
-    samples_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "samples")
-    r = Results([])
-    with open(os.path.join(samples_dir, "fuzzer_stats")) as f:
-        assert r._parse_fuzzer_stats(f) == "./harness @@"

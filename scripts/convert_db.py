@@ -1,4 +1,4 @@
-from atriage.collect import Results
+from atriage.db import AtriageDB
 
 import click
 
@@ -13,7 +13,7 @@ def cli(infile, outfile):
     with open(infile, "rb") as f:
         results = pickle.load(f)
 
-    r = Results(results)
+    r = AtriageDB(results)
     with open(outfile, "wb") as f:
         pickle.dump(r, f, pickle.HIGHEST_PROTOCOL)
 

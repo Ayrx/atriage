@@ -1,6 +1,8 @@
-from atriage.collect import (
-    Results, copy_crashes, get_crash_statistics, write_results
+from atriage.db import (
+    AtriageDB, copy_crashes, get_crash_statistics, write_db
 )
+
+from atriage.collectors import afl
 
 from atriage.asan import feed_crashes
 
@@ -20,18 +22,19 @@ def cli():
 @cli.command(help="Triage crash files from afl output directory.")
 @click.argument("dir", type=click.Path(exists=True))
 def triage(dir):
-    r = Results.from_db(DB_FILE_NAME)
-    r.parse_directory(dir)
-    write_results(r, DB_FILE_NAME)
+    r = AtriageDB.from_db(DB_FILE_NAME)
+    collector = afl.AFLCollector(r)
+    collector.parse_directory(dir)
+    write_db(r, DB_FILE_NAME)
 
 
 @cli.command(help="Print information about the provided database file.")
 @click.argument("db", type=click.Path(exists=True))
 def info(db):
-    r = Results.from_db(db)
+    r = AtriageDB.from_db(db)
     out, total_crashes = get_crash_statistics(r)
 
-    click.echo("Command: {}".format(r.afl_command))
+    click.echo("Command: {}".format(r.command))
     click.echo()
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
     click.echo()
@@ -46,7 +49,7 @@ def info(db):
               help="List files at index. "
               "Use atriage info to get a list of indexes.")
 def list(db, all, index):
-    r = Results.from_db(db)
+    r = AtriageDB.from_db(db)
 
     if all:
         crashes = r.all_crashes
@@ -70,7 +73,7 @@ def list(db, all, index):
               help="Gather files at index. "
               "Use atriage info to get a list of indexes.")
 def gather(db, dir, all, index):
-    r = Results.from_db(db)
+    r = AtriageDB.from_db(db)
 
     if all:
         crashes = r.all_crashes
@@ -102,7 +105,7 @@ def asan_output(db, out, all, index, timeout):
     the crash file in inserted into your parameters. The command will fail if
     it does not find that.
     """
-    r = Results.from_db(db)
+    r = AtriageDB.from_db(db)
 
     if all:
         crashes = r.all_crashes
@@ -114,7 +117,7 @@ def asan_output(db, out, all, index, timeout):
             return
 
     try:
-        ret = feed_crashes(r.afl_command, crashes, timeout)
+        ret = feed_crashes(r.command, crashes, timeout)
     except IndexError as e:
         click.echo(str(e))
         return
