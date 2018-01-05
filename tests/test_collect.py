@@ -23,11 +23,13 @@ def test_get_crash_statistics():
 
 
 def test_all_crashes_property():
-    assert r.all_crashes == set(["test_case_1", "test_case_2", "test_case_3"])
+    assert r.all_crashes == set([(1, "test_case_1"),
+                                 (2, "test_case_2"),
+                                 (3, "test_case_3")])
 
 
 def test_new_crashes_property():
-    assert r.new_crashes == set(["test_case_3"])
+    assert r.new_crashes == set([(3, "test_case_3")])
 
 
 def test_raw_crashes_property():
@@ -48,9 +50,9 @@ def test_get_result_set_invalid():
 
 
 def test_get_result_set_latest():
-    r.get_result_set(-1) == set(["test_case_3"])
+    r.get_result_set(-1) == set([(3, "test_case_3")])
 
 
 def test_get_result_set():
-    r.get_result_set(0) == set(["test_case_1", "test_case_2"])
-    r.get_result_set(1) == set(["test_case_3"])
+    r.get_result_set(0) == set([(1, "test_case_1"), (2, "test_case_2")])
+    r.get_result_set(1) == set([(3, "test_case_3")])

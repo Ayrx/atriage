@@ -36,6 +36,21 @@ def create_tables(conn):
                       db_version TEXT
                     )""")
 
+    conn.execute("""CREATE TABLE exploitable (
+                      crash_id INTEGER UNIQUE,
+                      signal_info TEXT,
+                      disassembly TEXT,
+                      stack_trace TEXT,
+                      faulting_frame TEXT,
+                      description TEXT,
+                      short_description TEXT,
+                      hash_value TEXT,
+                      exploitability TEXT,
+                      explanation TEXT,
+                      register_info TEXT,
+                      FOREIGN KEY(crash_id) REFERENCES crashes(crash_id)
+                    )""")
+
     conn.execute(
         """INSERT INTO metadata (id, command, current_bucket, db_version)
              VALUES (0, ?, -1, ?)""",
@@ -61,14 +76,16 @@ class AtriageDB(object):
 
     @property
     def all_crashes(self):
-        c = self._conn.execute("SELECT path FROM crashes")
-        return set([i[0] for i in c.fetchall()])
+        c = self._conn.execute("SELECT crash_id, path FROM crashes")
+        return set([(i[0], i[1]) for i in c.fetchall()])
 
     @property
     def new_crashes(self):
-        c = self._conn.execute("""SELECT path FROM crashes WHERE bucket = (
-                                    SELECT current_bucket FROM metadata)""")
-        return set([i[0] for i in c.fetchall()])
+        c = self._conn.execute("""SELECT crash_id, path FROM crashes
+                                    WHERE bucket = (
+                                      SELECT current_bucket FROM metadata
+                                    )""")
+        return set([(i[0], i[1]) for i in c.fetchall()])
 
     @property
     def raw_crashes(self):
@@ -96,9 +113,9 @@ class AtriageDB(object):
         if index > current_bucket:
             raise invalid_err
 
-        c = self._conn.execute("SELECT path FROM crashes WHERE bucket=?",
-                               (index, ))
-        return [i[0] for i in c.fetchall()]
+        c = self._conn.execute("""SELECT crash_id, path FROM crashes
+                                    WHERE bucket=?""", (index, ))
+        return [(i[0], i[1]) for i in c.fetchall()]
 
     def save_crashes(self, crashes):
         c = self._conn.execute("SELECT current_bucket FROM metadata")

@@ -20,7 +20,7 @@ class AFLCollector(object):
         click.echo("afl-fuzz command: {}".format(self._results.command))
 
         new = self._read_directory(directory)
-        old = self._results.all_crashes
+        old = set([i[1] for i in self._results.all_crashes])
 
         diff = new - old
         if len(diff) != 0:

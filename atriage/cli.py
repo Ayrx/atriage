@@ -55,10 +55,10 @@ def list(conn, db, all, index):
     r = AtriageDB(conn)
 
     if all:
-        crashes = r.all_crashes
+        crashes = [i[1] for i in r.all_crashes]
     else:
         try:
-            crashes = r.get_result_set(index)
+            crashes = [i[1] for i in r.get_result_set(index)]
         except IndexError as e:
             click.echo(str(e))
             return
@@ -80,10 +80,10 @@ def gather(conn, db, dir, all, index):
     r = AtriageDB(conn)
 
     if all:
-        crashes = r.all_crashes
+        crashes = [i[1] for i in r.all_crashes]
     else:
         try:
-            crashes = r.get_result_set(index)
+            crashes = [i[1] for i in r.get_result_set(index)]
         except IndexError as e:
             click.echo(str(e))
             return
@@ -127,7 +127,8 @@ def exploitable(conn, db, out, all, index, timeout, location, abort):
             return
 
     try:
-        ret = ex.feed_crashes(r.command, crashes, timeout, location, abort)
+        ret = ex.feed_crashes(
+            r._conn, r.command, crashes, timeout, location, abort)
     except IndexError as e:
         click.echo(str(e))
         return
