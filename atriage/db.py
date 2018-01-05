@@ -32,12 +32,14 @@ def create_tables(conn):
     conn.execute("""CREATE TABLE metadata (
                       id INTEGER PRIMARY KEY CHECK (id = 0),
                       command TEXT,
-                      current_bucket INTEGER
+                      current_bucket INTEGER,
+                      db_version TEXT
                     )""")
 
     conn.execute(
-        "INSERT INTO metadata (id, command, current_bucket) VALUES (0, ?, -1)",
-        (None,)
+        """INSERT INTO metadata (id, command, current_bucket, db_version)
+             VALUES (0, ?, -1, ?)""",
+        (None, "0.1", )
     )
 
     conn.commit()
