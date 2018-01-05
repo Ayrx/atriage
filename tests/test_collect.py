@@ -2,11 +2,16 @@ from atriage.db import AtriageDB, get_crash_statistics
 
 import pytest
 
+import sqlite3
 
-r = AtriageDB([
-    set(["test_case_1", "test_case_2"]),
-    set(["test_case_3"])
-])
+import os
+
+
+sample_db = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "samples", "atriage.db")
+
+conn = sqlite3.connect(sample_db)
+r = AtriageDB(conn)
 
 
 def test_get_crash_statistics():
@@ -40,12 +45,6 @@ def test_get_result_set_negative_index():
 def test_get_result_set_invalid():
     with pytest.raises(IndexError):
         r.get_result_set(2)
-
-
-def test_get_result_set_empty():
-    r_empty = AtriageDB([])
-    with pytest.raises(IndexError):
-        r_empty.get_result_set(-1)
 
 
 def test_get_result_set_latest():

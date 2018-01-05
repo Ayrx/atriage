@@ -1,5 +1,5 @@
 from atriage.db import (
-    AtriageDB, copy_crashes, get_crash_statistics, write_db
+    AtriageDB, copy_crashes, get_crash_statistics, init_conn
 )
 
 from atriage.collectors import afl
@@ -15,23 +15,25 @@ DB_FILE_NAME = "atriage.db"
 
 
 @click.group(help="A dumb afl-fuzz triage tool.")
-def cli():
-    pass
+@click.pass_context
+def cli(ctx):
+    ctx.obj = init_conn(DB_FILE_NAME)
 
 
 @cli.command(help="Triage crash files from afl output directory.")
 @click.argument("dir", type=click.Path(exists=True))
-def triage(dir):
-    r = AtriageDB.from_db(DB_FILE_NAME)
+@click.pass_obj
+def triage(conn, dir):
+    r = AtriageDB(conn)
     collector = afl.AFLCollector(r)
     collector.parse_directory(dir)
-    write_db(r, DB_FILE_NAME)
 
 
 @cli.command(help="Print information about the provided database file.")
 @click.argument("db", type=click.Path(exists=True))
-def info(db):
-    r = AtriageDB.from_db(db)
+@click.pass_obj
+def info(conn, db):
+    r = AtriageDB(conn)
     out, total_crashes = get_crash_statistics(r)
 
     click.echo("Command: {}".format(r.command))
@@ -48,8 +50,9 @@ def info(db):
 @click.option("--index", type=int, default=-1,
               help="List files at index. "
               "Use atriage info to get a list of indexes.")
-def list(db, all, index):
-    r = AtriageDB.from_db(db)
+@click.pass_obj
+def list(conn, db, all, index):
+    r = AtriageDB(conn)
 
     if all:
         crashes = r.all_crashes
@@ -72,8 +75,9 @@ def list(db, all, index):
 @click.option("--index", type=int, default=-1,
               help="Gather files at index. "
               "Use atriage info to get a list of indexes.")
-def gather(db, dir, all, index):
-    r = AtriageDB.from_db(db)
+@click.pass_obj
+def gather(conn, db, dir, all, index):
+    r = AtriageDB(conn)
 
     if all:
         crashes = r.all_crashes
@@ -102,7 +106,8 @@ def gather(db, dir, all, index):
               help="Location of the exploitable.py script")
 @click.option("--abort-on-error", "abort", default=False, is_flag=True,
               help="Set ASAN_OPTIONS=abort_on_error=1")
-def exploitable(db, out, all, index, timeout, location, abort):
+@click.pass_obj
+def exploitable(conn, db, out, all, index, timeout, location, abort):
     """ Capture GDB exploitable output of latest triaged crash files.
 
     This command reuses the parameters passed to your fuzzed app in your
@@ -110,7 +115,7 @@ def exploitable(db, out, all, index, timeout, location, abort):
     the crash file in inserted into your parameters. The command will fail if
     it does not find that.
     """
-    r = AtriageDB.from_db(db)
+    r = AtriageDB(conn)
 
     if all:
         crashes = r.all_crashes

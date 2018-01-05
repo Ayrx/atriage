@@ -25,9 +25,8 @@ class AFLCollector(object):
         diff = new - old
         if len(diff) != 0:
             click.echo("Adding {} crashes.".format(len(diff)))
-            self._results._results.append(diff)
 
-        return self._results
+        self._results.save_crashes(diff)
 
     def _parse_afl_command(self, directory):
         p = Path(directory)

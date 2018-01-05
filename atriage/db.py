@@ -1,38 +1,79 @@
-from pathlib import Path
-
-import pickle
-
 import click
 
 import shutil
 
 import os
 
+import sqlite3
+
+import itertools
+
+
+def init_conn(db):
+    new_db = not os.path.isfile(db)
+
+    _conn = sqlite3.connect(db, detect_types=sqlite3.PARSE_DECLTYPES)
+    _conn.execute("PRAGMA foreign_keys = 1")
+
+    if new_db:
+        create_tables(_conn)
+
+    return _conn
+
+
+def create_tables(conn):
+    conn.execute("""CREATE TABLE crashes (
+                      crash_id INTEGER PRIMARY KEY,
+                      path TEXT UNIQUE,
+                      bucket INTEGER,
+                      triage_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                    )""")
+
+    conn.execute("""CREATE TABLE metadata (
+                      id INTEGER PRIMARY KEY CHECK (id = 0),
+                      command TEXT,
+                      current_bucket INTEGER
+                    )""")
+
+    conn.execute(
+        "INSERT INTO metadata (id, command, current_bucket) VALUES (0, ?, -1)",
+        (None,)
+    )
+
+    conn.commit()
+
 
 class AtriageDB(object):
-    def __init__(self, results):
-        self._results = results
-        self._command = None
+    def __init__(self, conn):
+        self._conn = conn
 
     @property
     def command(self):
-        return self._command
+        c = self._conn.execute("SELECT command FROM metadata")
+        return c.fetchone()[0]
 
     @command.setter
     def command(self, value):
-        self._command = value
+        self._conn.execute("UPDATE metadata SET command=?", (value, ))
+        self._conn.commit()
 
     @property
     def all_crashes(self):
-        return set().union(*self._results)
+        c = self._conn.execute("SELECT path FROM crashes")
+        return set([i[0] for i in c.fetchall()])
 
     @property
     def new_crashes(self):
-        return self._results[-1]
+        c = self._conn.execute("""SELECT path FROM crashes WHERE bucket = (
+                                    SELECT current_bucket FROM metadata)""")
+        return set([i[0] for i in c.fetchall()])
 
     @property
     def raw_crashes(self):
-        return self._results
+        c = self._conn.execute(
+            "SELECT path, bucket FROM crashes ORDER BY bucket ASC")
+        groups = itertools.groupby(c.fetchall(), lambda x: x[1])
+        return [set([item[0] for item in data]) for (key, data) in groups]
 
     def get_result_set(self, index):
         """ Get crashes by index.
@@ -42,36 +83,34 @@ class AtriageDB(object):
         invalid_err = IndexError("Index {} is invalid. Use atriage info to "
                                  "view available indexes.".format(index))
 
-        empty_err = IndexError("Database is empty.")
-
         if index == -1:
-            pass
+            return self.new_crashes
         elif index < 0:
             raise invalid_err
 
-        try:
-            return self._results[index]
-        except IndexError:
-            if index == -1:
-                raise empty_err
-            else:
-                raise invalid_err
+        c = self._conn.execute("SELECT current_bucket FROM metadata")
+        current_bucket = c.fetchone()[0]
 
-    @classmethod
-    def from_db(cls, db_file_name):
-        p = Path(db_file_name)
-        if p.exists():
-            with p.open("rb") as f:
-                return pickle.load(f)
-        else:
-            return cls([])
+        if index > current_bucket:
+            raise invalid_err
 
+        c = self._conn.execute("SELECT path FROM crashes WHERE bucket=?",
+                               (index, ))
+        return [i[0] for i in c.fetchall()]
 
-def write_db(db, outfile):
-    """ Write database to file.
-    """
-    with open(outfile, "wb") as f:
-        pickle.dump(db, f, pickle.HIGHEST_PROTOCOL)
+    def save_crashes(self, crashes):
+        c = self._conn.execute("SELECT current_bucket FROM metadata")
+        current_bucket = c.fetchone()[0]
+        new_bucket = current_bucket + 1
+
+        params = [(str(i), new_bucket) for i in crashes]
+        self._conn.executemany("""INSERT OR IGNORE INTO crashes (path, bucket)
+                                    VALUES (?, ?)""", params)
+
+        c = self._conn.execute("UPDATE metadata SET current_bucket=?",
+                               (new_bucket, ))
+
+        self._conn.commit()
 
 
 def get_crash_statistics(db):
