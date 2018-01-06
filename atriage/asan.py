@@ -64,12 +64,8 @@ def feed_crashes(conn, command, crashes, timeout):
 
 
 def save_crashes(conn, crash_id, asan_output):
-    p = tuple(itertools.chain(
-        (int(crash_id), ),
-        asan_output,
-    ))
-    conn.execute("""INSERT INTO exploitable (
+    conn.execute("""INSERT INTO asan (
                       crash_id,
-                      asan_output,
-                    ) VALUES (?, ?)""", p)
+                      asan_output
+                    ) VALUES (?, ?)""", (int(crash_id), asan_output, ))
     conn.commit()

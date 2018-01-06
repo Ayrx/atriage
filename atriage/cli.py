@@ -6,7 +6,7 @@ from atriage.collectors import afl
 
 from atriage import exploitable as ex
 
-from atriage import asan
+from atriage import asan as _asan
 
 import click
 
@@ -171,7 +171,7 @@ def asan(conn, db, out, all, index, timeout):
             return
 
     try:
-        ret = asan.feed_crashes(r._conn, r.command, crashes, timeout)
+        ret = _asan.feed_crashes(r._conn, r.command, crashes, timeout)
     except IndexError as e:
         click.echo(str(e))
         return
