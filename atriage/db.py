@@ -51,6 +51,12 @@ def create_tables(conn):
                       FOREIGN KEY(crash_id) REFERENCES crashes(crash_id)
                     )""")
 
+    conn.execute("""CREATE TABLE asan (
+                      crash_id INTEGER UNIQUE,
+                      asan_output TEXT,
+                      FOREIGN KEY(crash_id) REFERENCES crashes(crash_id)
+                    )""")
+
     conn.execute(
         """INSERT INTO metadata (id, command, current_bucket, db_version)
              VALUES (0, ?, -1, ?)""",
