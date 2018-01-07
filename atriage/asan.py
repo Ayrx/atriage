@@ -64,7 +64,7 @@ def feed_crashes(conn, command, crashes, timeout):
 
 
 def save_crashes(conn, crash_id, asan_output):
-    conn.execute("""INSERT INTO asan (
+    conn.execute("""INSERT OR IGNORE INTO asan (
                       crash_id,
                       asan_output
                     ) VALUES (?, ?)""", (int(crash_id), asan_output, ))
