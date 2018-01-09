@@ -68,8 +68,8 @@ class AFLCollector(object):
                 # option. We want to parse the files in there as well.
                 if crash.name == ".cwtidy":
                     for c in crash.iterdir():
-                        crashes.add(c)
+                        crashes.add(str(c))
                     continue
-                crashes.add(crash)
+                crashes.add(str(crash))
 
         return crashes
