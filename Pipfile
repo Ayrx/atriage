@@ -16,6 +16,7 @@ coverage = "*"
 pytest = "*"
 tox = "*"
 "e1839a8" = {path = ".", editable = true}
+twine = "*"
 
 
 [requires]
