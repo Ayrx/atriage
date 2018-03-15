@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="atriage",
     description="A dumb afl-fuzz triage tool.",
-    version="0.1",
+    version="0.2.dev1",
     url="https://github.com/Ayrx/atriage",
     author="Terry Chia",
     author_email="terrycwk1994@gmail.com",
