@@ -179,3 +179,14 @@ def asan(conn, db, out, all, index, timeout):
     with open(out, "w") as f:
         for i in ret:
             f.write("{}\n".format(i))
+
+
+@cli.command(help="Gather all generated samples.")
+@click.argument("dir", type=click.Path(exists=True))
+@click.argument("out", type=click.Path())
+@click.pass_obj
+def gather_samples(conn, dir, out):
+    collector = afl.AFLCollector(dir)
+    samples = collector.gather_all_samples(dir)
+    click.echo("Found {} samples.".format(len(samples)))
+    copy_crashes(samples, out)

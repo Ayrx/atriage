@@ -28,6 +28,29 @@ class AFLCollector(object):
 
         self._results.save_crashes(diff)
 
+    def gather_all_samples(self, directory):
+        samples = set()
+
+        click.echo("Reading {}...".format(directory))
+        p = Path(directory)
+        for fuzzer_dir in p.iterdir():
+            queue_dir = fuzzer_dir / "queue"
+
+            if not queue_dir.exists():
+                click.echo("Skipping fuzzer {}...".format(fuzzer_dir.name))
+                continue
+            else:
+                click.echo("Parsing fuzzer {}...".format(fuzzer_dir.name))
+
+            for sample in queue_dir.iterdir():
+                if sample.name == "README.txt":
+                    continue
+                if sample.is_dir():
+                    continue
+                samples.add(str(sample))
+
+        return samples
+
     def _parse_afl_command(self, directory):
         p = Path(directory)
         for fuzzer_dir in p.iterdir():
