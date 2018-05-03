@@ -32,8 +32,15 @@ class AFLCollector(object):
         samples = set()
 
         click.echo("Reading {}...".format(directory))
+
         p = Path(directory)
-        for fuzzer_dir in p.iterdir():
+
+        if (p / "fuzzer_stats").exists():
+            fuzzer_dirs = [p]
+        else:
+            fuzzer_dirs = p.iterdir()
+
+        for fuzzer_dir in fuzzer_dirs:
             queue_dir = fuzzer_dir / "queue"
 
             if not queue_dir.exists():
@@ -53,7 +60,13 @@ class AFLCollector(object):
 
     def _parse_afl_command(self, directory):
         p = Path(directory)
-        for fuzzer_dir in p.iterdir():
+
+        if (p / "fuzzer_stats").exists():
+            fuzzer_dirs = [p]
+        else:
+            fuzzer_dirs = p.iterdir()
+
+        for fuzzer_dir in fuzzer_dirs:
             stats_file = fuzzer_dir / "fuzzer_stats"
             try:
                 with stats_file.open() as f:
@@ -75,7 +88,13 @@ class AFLCollector(object):
         crashes = set()
 
         p = Path(directory)
-        for fuzzer_dir in p.iterdir():
+
+        if (p / "fuzzer_stats").exists():
+            fuzzer_dirs = [p]
+        else:
+            fuzzer_dirs = p.iterdir()
+
+        for fuzzer_dir in fuzzer_dirs:
             crash_dir = fuzzer_dir / "crashes"
 
             if not crash_dir.exists():
