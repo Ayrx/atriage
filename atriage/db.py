@@ -67,8 +67,8 @@ def create_tables(conn):
 
 
 class AtriageDB(object):
-    def __init__(self, conn):
-        self._conn = conn
+    def __init__(self, db_file):
+        self._conn = init_conn(db_file)
 
     @property
     def command(self):

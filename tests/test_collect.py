@@ -10,8 +10,7 @@ import os
 sample_db = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "samples", "atriage.db")
 
-conn = sqlite3.connect(sample_db)
-r = AtriageDB(conn)
+r = AtriageDB(sample_db)
 
 
 def test_get_crash_statistics():
