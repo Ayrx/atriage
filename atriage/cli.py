@@ -32,7 +32,7 @@ def triage(dir):
 @cli.command(help="Print information about the provided database file.")
 @click.argument("db", type=click.Path(exists=True))
 def info(db):
-    r = AtriageDB(DB_FILE_NAME)
+    r = AtriageDB(db)
     out, total_crashes = get_crash_statistics(r)
 
     click.echo("Command: {}".format(r.command))
@@ -50,7 +50,7 @@ def info(db):
               help="List files at index. "
               "Use atriage info to get a list of indexes.")
 def list(db, all, index):
-    r = AtriageDB(DB_FILE_NAME)
+    r = AtriageDB(db)
 
     if all:
         crashes = [i[1] for i in r.all_crashes]
@@ -74,7 +74,7 @@ def list(db, all, index):
               help="Gather files at index. "
               "Use atriage info to get a list of indexes.")
 def gather(db, dir, all, index):
-    r = AtriageDB(DB_FILE_NAME)
+    r = AtriageDB(db)
 
     if all:
         crashes = [i[1] for i in r.all_crashes]
@@ -111,7 +111,7 @@ def exploitable(db, out, all, index, timeout, location, abort):
     the crash file in inserted into your parameters. The command will fail if
     it does not find that.
     """
-    r = AtriageDB(DB_FILE_NAME)
+    r = AtriageDB(db)
 
     if all:
         crashes = r.all_crashes
@@ -152,7 +152,7 @@ def asan(db, out, all, index, timeout):
     the crash file in inserted into your parameters. The command will fail if
     it does not find that.
     """
-    r = AtriageDB(DB_FILE_NAME)
+    r = AtriageDB(db)
 
     if all:
         crashes = r.all_crashes
