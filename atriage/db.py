@@ -9,18 +9,6 @@ import sqlite3
 import itertools
 
 
-def init_conn(db):
-    new_db = not os.path.isfile(db)
-
-    _conn = sqlite3.connect(db, detect_types=sqlite3.PARSE_DECLTYPES)
-    _conn.execute("PRAGMA foreign_keys = 1")
-
-    if new_db:
-        create_tables(_conn)
-
-    return _conn
-
-
 def create_tables(conn):
     conn.execute("""CREATE TABLE crashes (
                       crash_id INTEGER PRIMARY KEY,
@@ -68,7 +56,7 @@ def create_tables(conn):
 
 class AtriageDB(object):
     def __init__(self, db_file):
-        self._conn = init_conn(db_file)
+        self._conn = self._init_conn(db_file)
 
     @property
     def command(self):
@@ -136,6 +124,17 @@ class AtriageDB(object):
                                (new_bucket, ))
 
         self._conn.commit()
+
+    def _init_conn(self, db):
+        new_db = not os.path.isfile(db)
+
+        _conn = sqlite3.connect(db, detect_types=sqlite3.PARSE_DECLTYPES)
+        _conn.execute("PRAGMA foreign_keys = 1")
+
+        if new_db:
+            create_tables(_conn)
+
+        return _conn
 
 
 def get_crash_statistics(db):
