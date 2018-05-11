@@ -56,6 +56,7 @@ def create_tables(conn):
 
 class AtriageDB(object):
     def __init__(self, db_file):
+        self._db_file = db_file
         self._conn = self._init_conn(db_file)
 
     @property
@@ -71,7 +72,8 @@ class AtriageDB(object):
     @property
     def all_crashes(self):
         c = self._conn.execute("SELECT crash_id, path FROM crashes")
-        return set([(i[0], i[1]) for i in c.fetchall()])
+        return set([(i[0], self._make_relative_path(i[1]))
+                    for i in c.fetchall()])
 
     @property
     def new_crashes(self):
@@ -79,14 +81,16 @@ class AtriageDB(object):
                                     WHERE bucket = (
                                       SELECT current_bucket FROM metadata
                                     )""")
-        return set([(i[0], i[1]) for i in c.fetchall()])
+        return set([(i[0], self._make_relative_path(i[1]))
+                    for i in c.fetchall()])
 
     @property
     def raw_crashes(self):
         c = self._conn.execute(
             "SELECT path, bucket FROM crashes ORDER BY bucket ASC")
         groups = itertools.groupby(c.fetchall(), lambda x: x[1])
-        return [set([item[0] for item in data]) for (key, data) in groups]
+        return [set([self._make_relative_path(item[0]) for item in data])
+                for (key, data) in groups]
 
     def get_result_set(self, index):
         """ Get crashes by index.
@@ -109,7 +113,7 @@ class AtriageDB(object):
 
         c = self._conn.execute("""SELECT crash_id, path FROM crashes
                                     WHERE bucket=?""", (index, ))
-        return [(i[0], i[1]) for i in c.fetchall()]
+        return [(i[0], self._make_relative_path(i[1])) for i in c.fetchall()]
 
     def save_crashes(self, crashes):
         c = self._conn.execute("SELECT current_bucket FROM metadata")
@@ -135,6 +139,10 @@ class AtriageDB(object):
             create_tables(_conn)
 
         return _conn
+
+    def _make_relative_path(self, path):
+        """Returns `path` relative to `self._db_file`."""
+        return os.path.join(os.path.dirname(self._db_file), path)
 
 
 def get_crash_statistics(db):
