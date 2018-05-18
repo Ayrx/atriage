@@ -111,6 +111,13 @@ def exploitable(db, out, all, index, timeout, location, abort):
     the crash file in inserted into your parameters. The command will fail if
     it does not find that.
     """
+
+    if location is None:
+        click.echo("Please supply the location of the exploitable.py script. "
+                   "You can do this by either setting the ATRIAGE_EXPLOITABLE "
+                   "environment variable or using the --location option.")
+        return
+
     r = AtriageDB(db)
 
     if all:
