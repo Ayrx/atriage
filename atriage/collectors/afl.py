@@ -1,3 +1,5 @@
+from atriage.collectors.interface import CollectorInterface
+
 from pathlib import Path
 
 import click
@@ -115,3 +117,6 @@ class AFLCollector(object):
                 crashes.add(str(crash))
 
         return crashes
+
+
+CollectorInterface.register(AFLCollector)
