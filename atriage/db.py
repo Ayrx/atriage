@@ -21,7 +21,8 @@ def create_tables(conn):
                       id INTEGER PRIMARY KEY CHECK (id = 0),
                       command TEXT,
                       current_bucket INTEGER,
-                      db_version TEXT
+                      db_version TEXT,
+                      collector TEXT
                     )""")
 
     conn.execute("""CREATE TABLE exploitable (
@@ -48,7 +49,7 @@ def create_tables(conn):
     conn.execute(
         """INSERT INTO metadata (id, command, current_bucket, db_version)
              VALUES (0, ?, -1, ?)""",
-        (None, "0.1", )
+        (None, "0.2", )
     )
 
     conn.commit()
@@ -114,6 +115,18 @@ class AtriageDB(object):
         c = self._conn.execute("""SELECT crash_id, path FROM crashes
                                     WHERE bucket=?""", (index, ))
         return [(i[0], self._make_relative_path(i[1])) for i in c.fetchall()]
+
+    def get_collector(self):
+        """Get the collector used for the specific atriage database.
+        """
+        c = self._conn.execute("SELECT collector FROM metadata")
+        return c.fetchone()[0]
+
+    def set_collector(self, collector):
+        """Set the collector used for the specific atriage database.
+        """
+        self._conn.execute("UPDATE metadata set collector=?",
+                           (collector, ))
 
     def save_crashes(self, crashes):
         c = self._conn.execute("SELECT current_bucket FROM metadata")

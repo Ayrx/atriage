@@ -26,6 +26,7 @@ def cli():
 def triage(dir):
     r = AtriageDB(DB_FILE_NAME)
     collector = afl.AFLCollector(r)
+    r.set_collector(collector.name)
     collector.parse_directory(dir)
 
 
@@ -35,6 +36,7 @@ def info(db):
     r = AtriageDB(db)
     out, total_crashes = get_crash_statistics(r)
 
+    click.echo("Collector: {}".format(r.get_collector()))
     click.echo("Command: {}".format(r.command))
     click.echo()
     click.echo(tabulate.tabulate(out, headers=("index", "crashes")))
