@@ -18,7 +18,7 @@ def run_killchild(*popenargs, input=None, timeout=None, check=False, **kwargs):
             stdout, stderr = process.communicate()
             raise subprocess.TimeoutExpired(process.args, timeout,
                                             output=stdout, stderr=stderr)
-        except:
+        except: # noqa
             os.killpg(process.pid, signal.SIGINT)
             process.wait()
             raise

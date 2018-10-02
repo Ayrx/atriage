@@ -2,8 +2,6 @@ from atriage.db import AtriageDB, get_crash_statistics
 
 import pytest
 
-import sqlite3
-
 import os
 
 

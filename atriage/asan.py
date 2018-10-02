@@ -4,8 +4,6 @@ import subprocess
 
 import click
 
-import itertools
-
 
 ASAN_REGEX = re.compile(
     "={65}\n(.*)\n==[0-9]*==ABORTING",
