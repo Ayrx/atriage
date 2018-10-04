@@ -2,7 +2,9 @@ from atriage.db import (
     AtriageDB, copy_crashes, get_crash_statistics
 )
 
-from atriage.collectors import afl
+from atriage.collectors import collectors_index
+
+from atriage.collectors.exceptions import NoopException
 
 from atriage import exploitable as ex
 
@@ -21,11 +23,30 @@ def cli():
     pass
 
 
+@cli.command(help="List supported collectors.")
+def list_collectors():
+    for key in collectors_index.keys():
+        if key == "afl-collector":
+            click.echo("{} (default)".format(key))
+        else:
+            click.echo(key)
+
+
 @cli.command(help="Triage crash files from afl output directory.")
 @click.argument("dir", type=click.Path(exists=True))
-def triage(dir):
+@click.option("-c", "--collector", default="afl-collector")
+def triage(dir, collector):
+    try:
+        collector = collectors_index[collector]
+    except KeyError:
+        click.echo("Error: Collector {} invalid. "
+                   "Check \"atriage list-collectors\" for a list of "
+                   "valid collectors.".format(collector))
+        return
+
     r = AtriageDB(DB_FILE_NAME)
-    collector = afl.AFLCollector(r)
+
+    collector = collector(r)
     r.set_collector(collector.name)
     collector.parse_directory(dir)
 
@@ -186,8 +207,21 @@ def asan(db, out, all, index, timeout):
 @cli.command(help="Gather all generated samples.")
 @click.argument("dir", type=click.Path(exists=True))
 @click.argument("out", type=click.Path())
-def gather_samples(dir, out):
-    collector = afl.AFLCollector(dir)
-    samples = collector.gather_all_samples(dir)
-    click.echo("Found {} samples.".format(len(samples)))
-    copy_crashes(samples, out)
+@click.option("-c", "--collector", default="afl-collector")
+def gather_samples(dir, out, collector):
+    try:
+        collector = collectors_index[collector]
+    except KeyError:
+        click.echo("Error: Collector {} invalid. "
+                   "Check \"atriage list-collectors\" for a list of "
+                   "valid collectors.".format(collector))
+        return
+
+    collector = collector(None)
+
+    try:
+        samples = collector.gather_all_samples(dir)
+        click.echo("Found {} samples.".format(len(samples)))
+        copy_crashes(samples, out)
+    except NoopException:
+        click.echo("Command not implemented for selected collector.")

@@ -1,0 +1,2 @@
+class NoopException(Exception):
+    pass
