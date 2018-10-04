@@ -35,7 +35,8 @@ def list_collectors():
 @cli.command(help="Triage crash files from afl output directory.")
 @click.argument("dir", type=click.Path(exists=True))
 @click.option("-c", "--collector", default="afl-collector")
-def triage(dir, collector):
+@click.option("--command")
+def triage(dir, collector, command):
     try:
         collector = collectors_index[collector]
     except KeyError:
@@ -49,6 +50,9 @@ def triage(dir, collector):
     collector = collector(r)
     r.set_collector(collector.name)
     collector.parse_directory(dir)
+
+    if command:
+        r.command = command
 
 
 @cli.command(help="Print information about the provided database file.")
@@ -143,6 +147,11 @@ def exploitable(db, out, all, index, timeout, location, abort):
 
     r = AtriageDB(db)
 
+    if r.command is None:
+        click.echo("No command is set. Please run `atriage triage` again, "
+                   "with the --command option if neccessary.")
+        return
+
     if all:
         crashes = r.all_crashes
     else:
@@ -183,6 +192,11 @@ def asan(db, out, all, index, timeout):
     it does not find that.
     """
     r = AtriageDB(db)
+
+    if r.command is None:
+        click.echo("No command is set. Please run `atriage triage` again, "
+                   "with the --command option if neccessary.")
+        return
 
     if all:
         crashes = r.all_crashes
