@@ -8,13 +8,10 @@ import click
 
 class FlatDirCollector(object):
 
-    def __init__(self, results):
-        self._collector_name = "flat-dir-collector"
-        self._results = results
+    name = "flat-dir-collector"
 
-    @property
-    def name(self):
-        return self._collector_name
+    def __init__(self, results):
+        self._results = results
 
     def parse_directory(self, directory):
         click.echo("Reading {}...".format(directory))
