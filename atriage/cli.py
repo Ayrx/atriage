@@ -134,10 +134,9 @@ def exploitable(db, out, all, index, timeout, location, abort):
     """ Capture GDB exploitable output of latest triaged crash files.
 
     This command reuses the parameters passed to your fuzzed app in your
-    afl-fuzz run and expects the standard "@@" to denote the place where
-    the crash file in inserted into your parameters. The command will fail if
-    it does not find that.
-    """
+    afl-fuzz run. The command uses the standard "@@" to denote the place where
+    the crash file in inserted into your parameters. If no "@@" is given, the
+    crash file will be fed to the command through stdin. """
 
     if location is None:
         click.echo("Please supply the location of the exploitable.py script. "
@@ -187,10 +186,9 @@ def asan(db, out, all, index, timeout):
     """ Capture ASAN exploitable output of latest triaged crash files.
 
     This command reuses the parameters passed to your fuzzed app in your
-    afl-fuzz run and expects the standard "@@" to denote the place where
-    the crash file in inserted into your parameters. The command will fail if
-    it does not find that.
-    """
+    afl-fuzz run. The command uses the standard "@@" to denote the place where
+    the crash file in inserted into your parameters. If no "@@" is given, the
+    crash file will be fed to the command through stdin. """
     r = AtriageDB(db)
 
     if r.command is None:
