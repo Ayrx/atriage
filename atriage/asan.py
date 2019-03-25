@@ -2,6 +2,8 @@ import re
 
 import subprocess
 
+import sys
+
 import click
 
 
@@ -13,22 +15,27 @@ ASAN_REGEX = re.compile(
 
 def feed_crashes(conn, command, crashes, timeout):
     command = command.split()
-    file_index = None
+    input_from_stdin = True
     for index, token in enumerate(command):
         if token == "@@":
             file_index = index
+            input_from_stdin = False
             break
-
-    if file_index is None:
-        raise IndexError("Unable to locate @@ in command.")
 
     ret = []
     for crash_id, c in crashes:
-        command[file_index] = str(c)
+        if not input_from_stdin:
+            command[file_index] = str(c)
+            inp = None
+        else:
+            with open(c, 'rb') as f:
+                inp = f.read()
+
         command_string = " ".join(command)
 
         try:
             proc = subprocess.run(command, timeout=timeout,
+                                  input=inp,
                                   stderr=subprocess.STDOUT,
                                   stdout=subprocess.PIPE)
             asan_msg = proc.stdout.decode("utf-8", "backslashreplace")
