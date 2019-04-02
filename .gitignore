@@ -10,4 +10,3 @@ htmlcov/
 *.egg
 *.py[co]
 .vagrant/
-atriage.db
