@@ -19,16 +19,20 @@ def feed_crashes(conn, command, crashes, timeout):
             file_index = index
             break
 
-    if file_index is None:
-        raise IndexError("Unable to locate @@ in command.")
-
     ret = []
     for crash_id, c in crashes:
-        command[file_index] = str(c)
-        command_string = " ".join(command)
+        if file_index:
+            command[file_index] = str(c)
+            command_string = " ".join(command)
+            inp = None
+        else:
+            command_string = " ".join(command)
+            with open(c, "rb") as f:
+                inp = f.read()
 
         try:
             proc = subprocess.run(command, timeout=timeout,
+                                  input=inp,
                                   stderr=subprocess.STDOUT,
                                   stdout=subprocess.PIPE)
             asan_msg = proc.stdout.decode("utf-8", "backslashreplace")
