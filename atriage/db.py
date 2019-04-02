@@ -182,7 +182,7 @@ def get_crash_statistics(db):
 def copy_crashes(crashes, out):
     try:
         os.makedirs(out)
-    except OSError as e:
+    except OSError:
         pass
 
     click.echo("Copying {} files...".format(len(crashes)))
